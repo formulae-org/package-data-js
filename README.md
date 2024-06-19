@@ -14,7 +14,11 @@ Take a look at this [tutorial](https://formulae.org/?script=tutorials/Complex) t
 
 ### Capabilities ###
 
-The main expression is the **byte buffer**, a collecion of raw bytes.
+#### The **Byte buffer** expression
+
+The byte buffer expression is a collecion of raw bytes.
+
+#### Conversions ####
 
 * Conversion between a byte buffer and arbitrary strings (Unicode is supported).
 * Conversion between a byte buffer and Base64 strings.
