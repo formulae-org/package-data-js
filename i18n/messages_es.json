@@ -1,0 +1,26 @@
+{
+	"pathToBytes" : "Datos.A bytes",
+	
+	"nameStringToBytes"     : "Cadena a bytes",
+	"mnemonicStringToBytes" : "CadenaABytes",
+	"childStringToBytes"    : "Cadena a ser convertida a bytes",
+	"leafStringToBytes"     : "Cadena a bytes",
+	
+	"nameBase64ToBytes"     : "Base64 a bytes",
+	"mnemonicBase64ToBytes" : "Base64ABytes",
+	"childBase64ToBytes"    : "Base64 a ser convertida a bytes",
+	"leafBase64ToBytes"     : "Base64 to bytes",
+	
+	"pathFromBytes" : "Datos.Desde bytes",
+	
+	"nameBytesToString"     : "Bytes a cadena",
+	"mnemonicBytesToString" : "BytesACadena",
+	"childBytesToString"    : "Buffer de bytes a ser convertido a cadena",
+	"leafBytesToString"     : "Bytes a cadena",
+	
+	"nameBytesToBase64"     : "Bytes a base64",
+	"mnemonicBytesToBase64" : "BytesABase64",
+	"childBytesToBase64"    : "Buffer de bytes a ser convertido a base64",
+	"leafBytesToBase64"     : "Bytes a base64"
+}
+

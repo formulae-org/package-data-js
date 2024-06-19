@@ -1,0 +1,36 @@
+{
+	"pathToBytes" : "Data.To bytes",
+	
+	"nameStringToBytes"     : "String to bytes",
+	"mnemonicStringToBytes" : "StringToBytes",
+	"childStringToBytes"    : "String to be converted to bytes",
+	"leafStringToBytes"     : "String to bytes",
+	
+	"nameBase64ToBytes"     : "Base64 to bytes",
+	"mnemonicBase64ToBytes" : "Base64ToBytes",
+	"childBase64ToBytes"    : "Base64 to be converted to bytes",
+	"leafBase64ToBytes"     : "Base64 to bytes",
+	
+	"nameHexToBytes"     : "Hexadecimal to bytes",
+	"mnemonicHexToBytes" : "HexToBytes",
+	"childHexToBytes"    : "Hexadecimal to be converted to bytes",
+	"leafHexToBytes"     : "Hexadecimal to bytes",
+	
+	"pathFromBytes" : "Data.From bytes",
+	
+	"nameBytesToString"     : "Bytes to string",
+	"mnemonicBytesToString" : "BytesToString",
+	"childBytesToString"    : "Byte buffer to be converted to string",
+	"leafBytesToString"     : "Bytes to string",
+	
+	"nameBytesToBase64"     : "Bytes to base64",
+	"mnemonicBytesToBase64" : "BytesToBase64",
+	"childBytesToBase64"    : "Byte buffer to be converted to base64",
+	"leafBytesToBase64"     : "Bytes to base64",
+	
+	"nameBytesToHex"     : "Bytes to hexadecimal",
+	"mnemonicBytesToHex" : "BytesToHex",
+	"childBytesToHex"    : "Byte buffer to be converted to hexadecimal",
+	"leafBytesToHex"     : "Bytes to hexadecimal"
+}
+
