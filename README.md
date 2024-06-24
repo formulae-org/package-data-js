@@ -20,7 +20,7 @@ The byte buffer expression is a collecion of raw bytes.
 
 #### Creation ####
 
-* Creation of a byte buffer of a given size (number of bytes).
+* Creation of a byte buffer of a given size (number of bytes) with zero values.
 
 #### Conversions ####
 
