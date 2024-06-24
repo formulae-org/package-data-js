@@ -35,7 +35,7 @@ The byte buffer expression is a collecion of raw bytes.
 * Exraction of an integer-16 (ususally known in other languages as *short*) from a given position, and optional sign specification (unsigned default, signed), and optional endianness (little endian defualt, big endian)
 * Exraction of an integer-32 (ususally known in other languages as *int*) from a given position, and optional sign specification (unsigned default, signed), and optional endianness (little endian defualt, big endian)
 * Exraction of an integer-64 (ususally known in other languages as *long*) from a given position, and optional sign specification (unsigned default, signed), and optional endianness (little endian defualt, big endian)
-* Exraction of an float-32 (ususally known in other languages as *float*) from a given position, and optional endianness (little endian defualt, big endian)
-* Exraction of an float-64 (ususally known in other languages as *double*) from a given position, and optional endianness (little endian defualt, big endian)
+* Exraction of a float-32 (ususally known in other languages as *float*) from a given position, and optional endianness (little endian defualt, big endian)
+* Exraction of a float-64 (ususally known in other languages as *double*) from a given position, and optional endianness (little endian defualt, big endian)
 
 
