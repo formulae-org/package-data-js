@@ -20,6 +20,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 export class Data extends Formulae.Package {}
 
+Data.createByteBuffer = async (createByteBuffer, session) => {
+	let n = CanonicalArithmetic.getInteger(createByteBuffer.children[0]);
+	if (n === undefined) return false;
+	if (n < 0) return false;
+	
+	let arrayBuffer = new ArrayBuffer(n);
+	
+	let result = Formulae.createExpression("Data.ByteBuffer");
+	result.set("Value", arrayBuffer);
+	createByteBuffer.replaceBy(result);
+	
+	return true;
+};
+
 Data.stringToBytes = async (stringToBytes, session) => {
 	let string = stringToBytes.children[0];
 	if (string.getTag() !== "String.String") return false;
@@ -287,12 +301,297 @@ Data.hexToBytes = async (hexToBytes, session) => {
 	return true;
 };
 
+Data.bytesToArray = async (bytesToArray, session) => {
+	let arrayBuffer = bytesToArray.children[0];
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	arrayBuffer = arrayBuffer.get("Value");
+	let dataView = new DataView(arrayBuffer);
+	
+	let unsigned = true;
+	if (bytesToArray.children.length >= 2) {
+		switch (bytesToArray.children[1].getTag()) {
+			case "Data.Sign.Unsigned":
+				unsigned = true;
+				break;
+			
+			case "Data.Sign.Signed":
+				unsigned = false;
+				break;
+			
+			default:
+				return false;
+		}
+	}
+	
+	let n = arrayBuffer.byteLength;
+	let number;
+	
+	let result = Formulae.createExpression("List.List");
+	
+	for (let i = 0; i < n; ++i) {
+		number = unsigned ? dataView.getUint8(i) : dataView.getInt8(i);
+		result.addChild(CanonicalArithmetic.number2InternalNumber(number, false, session));
+	}
+	
+	bytesToArray.replaceBy(result);
+	return true;
+};
+
+Data.arrayToBytes = async (arrayToBytes, session) => {
+	let array = arrayToBytes.children[0];
+	if (array.getTag() !== "List.List") return false;
+	
+	let unsigned = true;
+	if (arrayToBytes.children.length >= 2) {
+		switch (arrayToBytes.children[1].getTag()) {
+			case "Data.Sign.Unsigned":
+				unsigned = true;
+				break;
+			
+			case "Data.Sign.Signed":
+				unsigned = false;
+				break;
+			
+			default:
+				return false;
+		}
+	}
+	
+	let n = array.children.length;
+	let value;
+	
+	let arrayBuffer = new ArrayBuffer(n);
+	let dataView = new DataView(arrayBuffer);
+	
+	for (let i = 0; i < n; ++i) {
+		value = CanonicalArithmetic.getInteger(array.children[i]);
+		if (value === undefined) return false;
+		
+		if (unsigned) {
+			dataView.setUint8(i, value);
+		}
+		else {
+			dataView.setInt8(i, value);
+		}
+	}
+	
+	let result = Formulae.createExpression("Data.ByteBuffer");
+	result.set("Value", arrayBuffer);
+	arrayToBytes.replaceBy(result);
+	
+	return true;
+};
+
+Data.getNumber = async (getNumber, session) => {
+	let arrayBuffer = getNumber.children[0];
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	arrayBuffer = arrayBuffer.get("Value");
+	let dataView = new DataView(arrayBuffer);
+	
+	let pos = CanonicalArithmetic.getInteger(getNumber.children[1]);
+	if (pos === undefined) return false;
+	if (pos < 1 || pos > arrayBuffer.byteLength) return false;
+	
+	let iSign, iEndianness;
+	if (getNumber.getTag().includes("Integer")) {
+		iSign = 2;
+		iEndianness = 3;
+	}
+	else {
+		iSign = -1;
+		iEndianness = 2;
+	}
+	
+	let unsigned = true;
+	if (iSign > 0 && getNumber.children.length > iSign) {
+		switch (getNumber.children[iSign].getTag()) {
+			case "Data.Sign.Unsigned":
+				unsigned = true;
+				break;
+			
+			case "Data.Sign.Signed":
+				unsigned = false;
+				break;
+			
+			default:
+				return false;
+		}
+	}
+	
+	let little = true;
+	if (getNumber.children.length > iEndianness) {
+		switch (getNumber.children[iEndianness].getTag()) {
+			case "Data.Endianness.Little-endian":
+				little = true;
+				break;
+			
+			case "Data.Endianness.Big-endian":
+				little = false;
+				break;
+			
+			default:
+				return false;
+		}
+	}
+	
+	let result = Formulae.createExpression("List.List");
+	let number;
+	
+	switch (getNumber.getTag()) {
+		case "Data.GetInteger8":
+			number = unsigned ? dataView.getUint8(pos - 1) : dataView.getInt8(pos - 1);
+			result = CanonicalArithmetic.number2InternalNumber(number, false, session);
+			break;
+		
+		case "Data.GetInteger16":
+			number = unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little);
+			result = CanonicalArithmetic.number2InternalNumber(number, false, session);
+			break;
+		
+		case "Data.GetInteger32":
+			number = unsigned ? dataView.getUint32(pos - 1, little) : dataView.getInt32(pos - 1, little);
+			result = CanonicalArithmetic.number2InternalNumber(number, false, session);
+			break;
+		
+		case "Data.GetInteger64":
+			number = unsigned ? dataView.getBigUint64(pos - 1, little) : dataView.getBigInt64(pos - 1, little);
+			result = CanonicalArithmetic.bigInt2Expr(number);
+			break;
+		
+		case "Data.GetFloat32":
+			number = dataView.getFloat32(pos - 1, little);
+			result = CanonicalArithmetic.number2InternalNumber(number, true, session);
+			break;
+		
+		case "Data.GetFloat64":
+			number = dataView.getFloat64(pos - 1, little);
+			result = CanonicalArithmetic.number2InternalNumber(number, true, session);
+			break;
+	}
+	
+	getNumber.replaceBy(result);
+	return true;
+};
+
+Data.setNumber = async (setNumber, session) => {
+	// array buffer
+	let arrayBuffer = setNumber.children[0];
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	arrayBuffer = arrayBuffer.get("Value");
+	let dataView = new DataView(arrayBuffer);
+	
+	// pos
+	let pos = CanonicalArithmetic.getInteger(setNumber.children[1]);
+	if (pos === undefined) return false;
+	if (pos < 1 || pos > arrayBuffer.byteLength) return false;
+	
+	// value
+	let value = CanonicalArithmetic.expr2CanonicalIntegerOrDecimal(setNumber.children[2]);
+	if (value === null) return false;
+	
+	// sign, endianness	
+	let iSign, iEndianness;
+	if (setNumber.getTag().includes("Integer")) {
+		iSign = 3;
+		iEndianness = 4;
+	}
+	else {
+		iSign = -1;
+		iEndianness = 3;
+	}
+	
+	let unsigned = true;
+	if (iSign > 0 && setNumber.children.length > iSign) {
+		switch (setNumber.children[iSign].getTag()) {
+			case "Data.Sign.Unsigned":
+				unsigned = true;
+				break;
+			
+			case "Data.Sign.Signed":
+				unsigned = false;
+				break;
+			
+			default:
+				return false;
+		}
+	}
+	
+	let little = true;
+	if (setNumber.children.length > iEndianness) {
+		switch (setNumber.children[iEndianness].getTag()) {
+			case "Data.Endianness.Little-endian":
+				little = true;
+				break;
+			
+			case "Data.Endianness.Big-endian":
+				little = false;
+				break;
+			
+			default:
+				return false;
+		}
+	}
+	
+	switch (setNumber.getTag()) {
+		case "Data.SetInteger8":
+			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+			unsigned ? dataView.setUint8(pos - 1, Number(value.integer)) : dataView.setInt8(pos - 1, Number(value));
+			break;
+		
+		case "Data.SetInteger16":
+			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+			unsigned ? dataView.setUint16(pos - 1, Number(value.integer), little) : dataView.setInt16(pos - 1, Number(value), little);
+			break;
+		
+		case "Data.SetInteger32":
+			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+			unsigned ? dataView.setUint32(pos - 1, Number(value.integer), little) : dataView.setInt32(pos - 1, Number(value), little);
+			break;
+		
+		case "Data.SetInteger64":
+			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+			unsigned ? dataView.setBigUint64(pos - 1, value.integer, little) : dataView.setBigInt64(pos - 1, Number(value), little);
+			break;
+		
+		case "Data.SetFloat32":
+			if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
+			dataView.setFloat32(pos - 1, value.decimal.toNumber(), little);
+			break;
+		
+		case "Data.SetFloat64":
+			if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
+			dataView.setFloat64(pos - 1, value.decimal.toNumber(), little);
+			break;
+	}
+	
+	setNumber.replaceBy(setNumber.children[0]);
+	return true;
+};
+
 Data.setReducers = () => {
+	ReductionManager.addReducer("Data.CreateByteBuffer", Data.createByteBuffer, "Data.createByteBuffer");
+	
 	ReductionManager.addReducer("Data.StringToBytes", Data.stringToBytes, "Data.stringToBytes");
 	ReductionManager.addReducer("Data.Base64ToBytes", Data.base64ToBytes, "Data.base64ToBytes");
 	ReductionManager.addReducer("Data.HexToBytes",    Data.hexToBytes,    "Data.hexToBytes"   );
+	ReductionManager.addReducer("Data.ArrayToBytes",  Data.arrayToBytes,  "Data.arrayToBytes" );
 	
 	ReductionManager.addReducer("Data.BytesToString", Data.bytesToString, "Data.bytesToString");
 	ReductionManager.addReducer("Data.BytesToBase64", Data.bytesToBase64, "Data.bytesToBase64");
 	ReductionManager.addReducer("Data.BytesToHex",    Data.bytesToHex,    "Data.bytesToHex"   );
+	ReductionManager.addReducer("Data.BytesToArray",  Data.bytesToArray,  "Data.bytesToArray" );
+	
+	ReductionManager.addReducer("Data.GetInteger8",  Data.getNumber, "Data.getNumber");
+	ReductionManager.addReducer("Data.GetInteger16", Data.getNumber, "Data.getNumber");
+	ReductionManager.addReducer("Data.GetInteger32", Data.getNumber, "Data.getNumber");
+	ReductionManager.addReducer("Data.GetInteger64", Data.getNumber, "Data.getNumber");
+	ReductionManager.addReducer("Data.GetFloat32",   Data.getNumber, "Data.getNumber");
+	ReductionManager.addReducer("Data.GetFloat64",   Data.getNumber, "Data.getNumber");
+	
+	ReductionManager.addReducer("Data.SetInteger8",  Data.setNumber, "Data.SetNumber");
+	ReductionManager.addReducer("Data.SetInteger16", Data.setNumber, "Data.setNumber");
+	ReductionManager.addReducer("Data.SetInteger32", Data.setNumber, "Data.setNumber");
+	ReductionManager.addReducer("Data.SetInteger64", Data.setNumber, "Data.setNumber");
+	ReductionManager.addReducer("Data.SetFloat32",   Data.setNumber, "Data.setNumber");
+	ReductionManager.addReducer("Data.SetFloat64",   Data.setNumber, "Data.setNumber");
 };
