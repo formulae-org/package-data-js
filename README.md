@@ -24,7 +24,7 @@ The byte buffer expression is a collecion of raw bytes.
 
 #### Conversions ####
 
-* Conversion from/to a byte buffer to/from an arbitrary string (Unicode is supported).
+* Conversion from/to a byte buffer to/from an arbitrary string. Unicode strings are supported.
 * Conversion from/to a byte buffer to/from a Base64 string.
 * Conversion from/to a byte buffer to/from a hexadecimal string.
 * Conversion from/to a byte buffer to/from an array of integers.
