@@ -41,7 +41,7 @@ The byte buffer expression is a collecion of raw bytes.
 #### Update data of a byte buffer ####
 
 * Update an integer-8 value (a byte) from a given position, and optional sign specification
-* Update an integer-16 value (usually known in other languages as *short int*) from a given position, and optional sign and optional endianness
+* Update an integer-16 value (usually known in other languages as *short int*) from a given position, and optional sign and endianness
 * Update an integer-32 value (usually known in other languages as *int*) from a given position, and optional sign and endianness
 * Update an integer-64 value (usually known in other languages as *long int*) from a given position, and optional sign and endianness
 * Update a float-32 value (usually known in other languages as *float*) from a given position, and optional endianness
