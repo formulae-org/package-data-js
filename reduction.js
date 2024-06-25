@@ -22,8 +22,10 @@ export class Data extends Formulae.Package {}
 
 Data.createByteBuffer = async (createByteBuffer, session) => {
 	let n = CanonicalArithmetic.getInteger(createByteBuffer.children[0]);
-	if (n === undefined) return false;
-	if (n < 0) return false;
+	if (n === undefined || n < 0) {
+		ReductionManager.setInError(createByteBuffer.children[0], "Invalid number");
+		throw new ReductionError();
+	};
 	
 	let arrayBuffer = new ArrayBuffer(n);
 	
@@ -36,7 +38,10 @@ Data.createByteBuffer = async (createByteBuffer, session) => {
 
 Data.stringToBytes = async (stringToBytes, session) => {
 	let string = stringToBytes.children[0];
-	if (string.getTag() !== "String.String") return false;
+	if (string.getTag() !== "String.String") { 
+		ReductionManager.setInError(stringToBytes.children[0], "Expression is not a string");
+		throw new ReductionError();
+	}
 	string = string.get("Value");
 	
 	// let arrayBuffer = new TextEncoder().encode(string);
@@ -82,7 +87,10 @@ Data.stringToBytes = async (stringToBytes, session) => {
 
 Data.bytesToString = async (bytesToString, session) => {
 	let arrayBuffer = bytesToString.children[0];
-	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") {
+		ReductionManager.setInError(bytesToString.children[0], "Expression is not a byte buffer");
+		throw new ReductionError();
+	}
 	arrayBuffer = arrayBuffer.get("Value");
 	
 	// let string = new TextDecoder().decode(arrayBuffer);
@@ -238,7 +246,10 @@ Data._base64ToBytes = string => {
 
 Data.base64ToBytes = async (base64ToBytes, session) => {
 	let string = base64ToBytes.children[0];
-	if (string.getTag() !== "String.String") return false;
+	if (string.getTag() !== "String.String") {
+		ReductionManager.setInError(base64ToBytes.children[0], "Expression is not a string");
+		throw new ReductionError();
+	}
 	string = string.get("Value");
 	
 	let arrayBuffer = Data._base64ToBytes(string).buffer;
@@ -252,7 +263,10 @@ Data.base64ToBytes = async (base64ToBytes, session) => {
 
 Data.bytesToBase64 = async (bytesToBase64, session) => {
 	let arrayBuffer = bytesToBase64.children[0];
-	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") {
+		ReductionManager.setInError(bytesToBase64.children[0], "Expression is not a byte buffer");
+		throw new ReductionError();
+	}
 	arrayBuffer = arrayBuffer.get("Value");
 	let bytes = new Uint8Array(arrayBuffer);
 	
@@ -265,29 +279,17 @@ Data.bytesToBase64 = async (bytesToBase64, session) => {
 	return true;
 };
 
-Data.bytesToHex = async (bytesToHex, session) => {
-	let arrayBuffer = bytesToHex.children[0];
-	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
-	arrayBuffer = arrayBuffer.get("Value");
-	//let bytes= new Uint8Array(arrayBuffer);
-	let bytes = [ ... new Uint8Array(arrayBuffer) ]; // WHY ???
-	
-	let string = bytes.map(x => x.toString(16).padStart(2, '0')).join('');
-	
-	let stringExpr = Formulae.createExpression("String.String");
-	stringExpr.set("Value", string);
-	bytesToHex.replaceBy(stringExpr);
-	
-	return true;
-};
-
 Data.hexToBytes = async (hexToBytes, session) => {
 	let string = hexToBytes.children[0];
-	if (string.getTag() !== "String.String") return false;
+	if (string.getTag() !== "String.String") {
+		ReductionManager.setInError(hexToBytes.children[0], "Expression is not a string");
+		throw new ReductionError();
+	}
 	string = string.get("Value");
 	
-	if ((string.length % 2) !== 0) {
-		return false;
+	if ((string.length % 2) !== 0 || !(/^[0-9a-fA-F]*$/.test(string))) {
+		ReductionManager.setInError(hexToBytes.children[0], "String has invalid characters");
+		throw new ReductionError();
 	}
 	
 	//let arrayBuffer = Data._base64ToBytes(string).buffer;
@@ -301,9 +303,83 @@ Data.hexToBytes = async (hexToBytes, session) => {
 	return true;
 };
 
+Data.bytesToHex = async (bytesToHex, session) => {
+	let arrayBuffer = bytesToHex.children[0];
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") {
+		ReductionManager.setInError(bytesToHex.children[0], "Expression is not a byte buffer");
+		throw new ReductionError();
+	}
+	arrayBuffer = arrayBuffer.get("Value");
+	//let bytes= new Uint8Array(arrayBuffer);
+	let bytes = [ ... new Uint8Array(arrayBuffer) ]; // WHY ???
+	
+	let string = bytes.map(x => x.toString(16).padStart(2, '0')).join('');
+	
+	let stringExpr = Formulae.createExpression("String.String");
+	stringExpr.set("Value", string);
+	bytesToHex.replaceBy(stringExpr);
+	
+	return true;
+};
+
+Data.arrayToBytes = async (arrayToBytes, session) => {
+	let array = arrayToBytes.children[0];
+	if (array.getTag() !== "List.List") {
+		ReductionManager.setInError(arrayToBytes.children[0], "Expression is not a list");
+		throw new ReductionError();
+	}
+	
+	let unsigned = true;
+	if (arrayToBytes.children.length >= 2) {
+		switch (arrayToBytes.children[1].getTag()) {
+			case "Data.Sign.Unsigned":
+				unsigned = true;
+				break;
+			
+			case "Data.Sign.Signed":
+				unsigned = false;
+				break;
+			
+			default:
+				ReductionManager.setInError(arrayToBytes.children[1], "Expression is not a sign specification");
+				throw new ReductionError();
+		}
+	}
+	
+	let n = array.children.length;
+	let value;
+	
+	let arrayBuffer = new ArrayBuffer(n);
+	let dataView = new DataView(arrayBuffer);
+	
+	for (let i = 0; i < n; ++i) {
+		value = CanonicalArithmetic.getInteger(array.children[i]);
+		if (value === undefined) {
+			ReductionManager.setInError(value, "Expression is not an integer number");
+			throw new ReductionError();
+		}
+		
+		if (unsigned) {
+			dataView.setUint8(i, value);
+		}
+		else {
+			dataView.setInt8(i, value);
+		}
+	}
+	
+	let result = Formulae.createExpression("Data.ByteBuffer");
+	result.set("Value", arrayBuffer);
+	arrayToBytes.replaceBy(result);
+	
+	return true;
+};
+
 Data.bytesToArray = async (bytesToArray, session) => {
 	let arrayBuffer = bytesToArray.children[0];
-	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") {
+		ReductionManager.setInError(bytesToArray.children[0], "Expression is not byte buffer");
+		throw new ReductionError();
+	}
 	arrayBuffer = arrayBuffer.get("Value");
 	let dataView = new DataView(arrayBuffer);
 	
@@ -319,7 +395,8 @@ Data.bytesToArray = async (bytesToArray, session) => {
 				break;
 			
 			default:
-				return false;
+				ReductionManager.setInError(bytesToArray.children[1], "Expression is not a sign specification");
+				throw new ReductionError();
 		}
 	}
 	
@@ -337,60 +414,24 @@ Data.bytesToArray = async (bytesToArray, session) => {
 	return true;
 };
 
-Data.arrayToBytes = async (arrayToBytes, session) => {
-	let array = arrayToBytes.children[0];
-	if (array.getTag() !== "List.List") return false;
-	
-	let unsigned = true;
-	if (arrayToBytes.children.length >= 2) {
-		switch (arrayToBytes.children[1].getTag()) {
-			case "Data.Sign.Unsigned":
-				unsigned = true;
-				break;
-			
-			case "Data.Sign.Signed":
-				unsigned = false;
-				break;
-			
-			default:
-				return false;
-		}
-	}
-	
-	let n = array.children.length;
-	let value;
-	
-	let arrayBuffer = new ArrayBuffer(n);
-	let dataView = new DataView(arrayBuffer);
-	
-	for (let i = 0; i < n; ++i) {
-		value = CanonicalArithmetic.getInteger(array.children[i]);
-		if (value === undefined) return false;
-		
-		if (unsigned) {
-			dataView.setUint8(i, value);
-		}
-		else {
-			dataView.setInt8(i, value);
-		}
-	}
-	
-	let result = Formulae.createExpression("Data.ByteBuffer");
-	result.set("Value", arrayBuffer);
-	arrayToBytes.replaceBy(result);
-	
-	return true;
-};
-
 Data.getNumber = async (getNumber, session) => {
 	let arrayBuffer = getNumber.children[0];
-	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") {
+		ReductionManager.setInError(getNumber.children[0], "Expression is not byte buffer");
+		throw new ReductionError();
+	}
 	arrayBuffer = arrayBuffer.get("Value");
 	let dataView = new DataView(arrayBuffer);
 	
 	let pos = CanonicalArithmetic.getInteger(getNumber.children[1]);
-	if (pos === undefined) return false;
-	if (pos < 1 || pos > arrayBuffer.byteLength) return false;
+	if (pos === undefined) {
+		ReductionManager.setInError(getNumber.children[1], "Expression is not an integer number");
+		throw new ReductionError();
+	}
+	if (pos < 1 || pos > arrayBuffer.byteLength) {
+		ReductionManager.setInError(getNumber.children[1], "Invalid index");
+		throw new ReductionError();
+	}
 	
 	let iSign, iEndianness;
 	if (getNumber.getTag().includes("Integer")) {
@@ -414,7 +455,8 @@ Data.getNumber = async (getNumber, session) => {
 				break;
 			
 			default:
-				return false;
+				ReductionManager.setInError(getNumber.children[iSign], "Expression is not a sign specification");
+				throw new ReductionError();
 		}
 	}
 	
@@ -430,7 +472,8 @@ Data.getNumber = async (getNumber, session) => {
 				break;
 			
 			default:
-				return false;
+				ReductionManager.setInError(getNumber.children[iEndianness], "Expression is not a endianness specification");
+				throw new ReductionError();
 		}
 	}
 	
@@ -476,18 +519,30 @@ Data.getNumber = async (getNumber, session) => {
 Data.setNumber = async (setNumber, session) => {
 	// array buffer
 	let arrayBuffer = setNumber.children[0];
-	if (arrayBuffer.getTag() !== "Data.ByteBuffer") return false;
+	if (arrayBuffer.getTag() !== "Data.ByteBuffer") {
+		ReductionManager.setInError(setNumber.children[0], "Expression is not byte buffer");
+		throw new ReductionError();
+	}
 	arrayBuffer = arrayBuffer.get("Value");
 	let dataView = new DataView(arrayBuffer);
 	
 	// pos
 	let pos = CanonicalArithmetic.getInteger(setNumber.children[1]);
-	if (pos === undefined) return false;
-	if (pos < 1 || pos > arrayBuffer.byteLength) return false;
+	if (pos === undefined) {
+		ReductionManager.setInError(setNumber.children[1], "Expression is not an integer number");
+		throw new ReductionError();
+	}
+	if (pos < 1 || pos > arrayBuffer.byteLength) {
+		ReductionManager.setInError(setNumber.children[1], "Invalid index");
+		throw new ReductionError();
+	}
 	
 	// value
 	let value = CanonicalArithmetic.expr2CanonicalIntegerOrDecimal(setNumber.children[2]);
-	if (value === null) return false;
+	if (value === null) {
+		ReductionManager.setInError(setNumber.children[2], "Expression is not a number");
+		throw new ReductionError();
+	}
 	
 	// sign, endianness	
 	let iSign, iEndianness;
@@ -512,7 +567,8 @@ Data.setNumber = async (setNumber, session) => {
 				break;
 			
 			default:
-				return false;
+				ReductionManager.setInError(setNumber.children[iSign], "Expression is not a sign specification");
+				throw new ReductionError();
 		}
 	}
 	
@@ -528,7 +584,8 @@ Data.setNumber = async (setNumber, session) => {
 				break;
 			
 			default:
-				return false;
+				ReductionManager.setInError(setNumber.children[iEndianness], "Expression is not a endianness specification");
+				throw new ReductionError();
 		}
 	}
 	
