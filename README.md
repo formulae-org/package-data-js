@@ -52,7 +52,7 @@ The byte buffer expression is a collecion of raw bytes.
 * Signing
     * Unsigned (default)
     * Signed
-* Endianness
+* [Endianness](https://en.wikipedia.org/wiki/Endianness)
     * Little-endian (default)
     * Big-endian
 
