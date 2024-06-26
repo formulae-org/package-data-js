@@ -209,6 +209,7 @@ Data._bytesToBase64 = bytes => {
 /**
 	input: String
 	output: Uint8Array
+	throws: Error if input is not a Base64 string
  */
 
 Data._base64ToBytes = string => {
@@ -252,7 +253,14 @@ Data.base64ToBytes = async (base64ToBytes, session) => {
 	}
 	string = string.get("Value");
 	
-	let arrayBuffer = Data._base64ToBytes(string).buffer;
+	let arrayBuffer;
+	try {
+		arrayBuffer = Data._base64ToBytes(string).buffer;
+	}
+	catch (err) {
+		ReductionManager.setInError(base64ToBytes.children[0], "Expression is not a valid Base64 string");
+		throw new ReductionError();
+	}
 	
 	let result = Formulae.createExpression("Data.ByteBuffer");
 	result.set("Value", arrayBuffer);
@@ -291,8 +299,6 @@ Data.hexToBytes = async (hexToBytes, session) => {
 		ReductionManager.setInError(hexToBytes.children[0], "String has invalid characters");
 		throw new ReductionError();
 	}
-	
-	//let arrayBuffer = Data._base64ToBytes(string).buffer;
 	
 	let arrayBuffer = new Uint8Array(string.match(/../g).map(ss => parseInt(ss, 16))).buffer;
 	
@@ -480,36 +486,44 @@ Data.getNumber = async (getNumber, session) => {
 	let result = Formulae.createExpression("List.List");
 	let number;
 	
-	switch (getNumber.getTag()) {
-		case "Data.GetInteger8":
-			number = unsigned ? dataView.getUint8(pos - 1) : dataView.getInt8(pos - 1);
-			result = CanonicalArithmetic.number2InternalNumber(number, false, session);
-			break;
-		
-		case "Data.GetInteger16":
-			number = unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little);
-			result = CanonicalArithmetic.number2InternalNumber(number, false, session);
-			break;
-		
-		case "Data.GetInteger32":
-			number = unsigned ? dataView.getUint32(pos - 1, little) : dataView.getInt32(pos - 1, little);
-			result = CanonicalArithmetic.number2InternalNumber(number, false, session);
-			break;
-		
-		case "Data.GetInteger64":
-			number = unsigned ? dataView.getBigUint64(pos - 1, little) : dataView.getBigInt64(pos - 1, little);
-			result = CanonicalArithmetic.bigInt2Expr(number);
-			break;
-		
-		case "Data.GetFloat32":
-			number = dataView.getFloat32(pos - 1, little);
-			result = CanonicalArithmetic.number2InternalNumber(number, true, session);
-			break;
-		
-		case "Data.GetFloat64":
-			number = dataView.getFloat64(pos - 1, little);
-			result = CanonicalArithmetic.number2InternalNumber(number, true, session);
-			break;
+	try {
+		switch (getNumber.getTag()) {
+			case "Data.GetInteger8":
+				number = unsigned ? dataView.getUint8(pos - 1) : dataView.getInt8(pos - 1);
+				result = CanonicalArithmetic.number2InternalNumber(number, false, session);
+				break;
+			
+			case "Data.GetInteger16":
+				number = unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little);
+				result = CanonicalArithmetic.number2InternalNumber(number, false, session);
+				break;
+			
+			case "Data.GetInteger32":
+				number = unsigned ? dataView.getUint32(pos - 1, little) : dataView.getInt32(pos - 1, little);
+				result = CanonicalArithmetic.number2InternalNumber(number, false, session);
+				break;
+			
+			case "Data.GetInteger64":
+				number = unsigned ? dataView.getBigUint64(pos - 1, little) : dataView.getBigInt64(pos - 1, little);
+				result = CanonicalArithmetic.bigInt2Expr(number);
+				break;
+			
+			case "Data.GetFloat32":
+				number = dataView.getFloat32(pos - 1, little);
+				result = CanonicalArithmetic.number2InternalNumber(number, true, session);
+				break;
+			
+			case "Data.GetFloat64":
+				number = dataView.getFloat64(pos - 1, little);
+				result = CanonicalArithmetic.number2InternalNumber(number, true, session);
+				break;
+		}
+	}
+	catch (err) {
+		if (err instanceof RangeError) {
+			ReductionManager.setInError(getNumber.children[1], "Invalid index");
+			throw new ReductionError();
+		}
 	}
 	
 	getNumber.replaceBy(result);
@@ -589,36 +603,44 @@ Data.setNumber = async (setNumber, session) => {
 		}
 	}
 	
-	switch (setNumber.getTag()) {
-		case "Data.SetInteger8":
-			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
-			unsigned ? dataView.setUint8(pos - 1, Number(value.integer)) : dataView.setInt8(pos - 1, Number(value));
-			break;
-		
-		case "Data.SetInteger16":
-			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
-			unsigned ? dataView.setUint16(pos - 1, Number(value.integer), little) : dataView.setInt16(pos - 1, Number(value), little);
-			break;
-		
-		case "Data.SetInteger32":
-			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
-			unsigned ? dataView.setUint32(pos - 1, Number(value.integer), little) : dataView.setInt32(pos - 1, Number(value), little);
-			break;
-		
-		case "Data.SetInteger64":
-			if (!(value instanceof CanonicalArithmetic.Integer)) return null;
-			unsigned ? dataView.setBigUint64(pos - 1, value.integer, little) : dataView.setBigInt64(pos - 1, Number(value), little);
-			break;
-		
-		case "Data.SetFloat32":
-			if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
-			dataView.setFloat32(pos - 1, value.decimal.toNumber(), little);
-			break;
-		
-		case "Data.SetFloat64":
-			if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
-			dataView.setFloat64(pos - 1, value.decimal.toNumber(), little);
-			break;
+	try {
+		switch (setNumber.getTag()) {
+			case "Data.SetInteger8":
+				if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				unsigned ? dataView.setUint8(pos - 1, Number(value.integer)) : dataView.setInt8(pos - 1, Number(value));
+				break;
+			
+			case "Data.SetInteger16":
+				if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				unsigned ? dataView.setUint16(pos - 1, Number(value.integer), little) : dataView.setInt16(pos - 1, Number(value), little);
+				break;
+			
+			case "Data.SetInteger32":
+				if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				unsigned ? dataView.setUint32(pos - 1, Number(value.integer), little) : dataView.setInt32(pos - 1, Number(value), little);
+				break;
+			
+			case "Data.SetInteger64":
+				if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				unsigned ? dataView.setBigUint64(pos - 1, value.integer, little) : dataView.setBigInt64(pos - 1, Number(value), little);
+				break;
+			
+			case "Data.SetFloat32":
+				if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
+				dataView.setFloat32(pos - 1, value.decimal.toNumber(), little);
+				break;
+			
+			case "Data.SetFloat64":
+				if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
+				dataView.setFloat64(pos - 1, value.decimal.toNumber(), little);
+				break;
+		}
+	}
+	catch (err) {
+		if (err instanceof RangeError) {
+			ReductionManager.setInError(setNumber.children[1], "Invalid index");
+			throw new ReductionError();
+		}
 	}
 	
 	setNumber.replaceBy(setNumber.children[0]);

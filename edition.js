@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 export class Data extends Formulae.Package {}
 
 Data.setEditions = function() {
-	Formulae.addEdition(this.messages.pathByteBuffer, null, this.messages.leafCreateByteBuffer, () => Expression.wrapperEdition("Data.CreateByteBuffer"));
+	Formulae.addEdition(this.messages.pathData, null, this.messages.leafCreateByteBuffer, () => Expression.wrapperEdition("Data.CreateByteBuffer"));
 	
 	// Extract from byte buffer
 	

@@ -1,26 +1,88 @@
 {
-	"pathToBytes" : "Datos.A bytes",
+	"pathData" : "Datos",
 	
-	"nameStringToBytes"     : "Cadena a bytes",
-	"mnemonicStringToBytes" : "CadenaABytes",
-	"childStringToBytes"    : "Cadena a ser convertida a bytes",
-	"leafStringToBytes"     : "Cadena a bytes",
+	"nameCreateByteBuffer"     : "Crear búfer",
+	"mnemonicCreateByteBuffer" : "CrearBúfer",
+	"childCreateByteBuffer"    : "Númbero de bytes",
+	"leafCreateByteBuffer"     : "Crear búffer",
 	
-	"nameBase64ToBytes"     : "Base64 a bytes",
-	"mnemonicBase64ToBytes" : "Base64ABytes",
-	"childBase64ToBytes"    : "Base64 a ser convertida a bytes",
-	"leafBase64ToBytes"     : "Base64 to bytes",
+	"pathExtraction" : "Datos.Manipulación.Extracción",
 	
-	"pathFromBytes" : "Datos.Desde bytes",
+	"mnemonicGetInteger" : "ObtenerEntero",
+	"nameGetInteger1"    : "Obtener entero (",
+	"nameGetInteger2"    : ") desde búfer",
+	"childrenGetInteger" : [ "Búfer", "Posición", "Signo", "Endianness" ],
 	
-	"nameBytesToString"     : "Bytes a cadena",
-	"mnemonicBytesToString" : "BytesACadena",
-	"childBytesToString"    : "Buffer de bytes a ser convertido a cadena",
-	"leafBytesToString"     : "Bytes a cadena",
+	"mnemonicGetFloat" : "ObtenerFlotante",
+	"nameGetFloat1"    : "Obtener flotante (",
+	"nameGetFloat2"    : ") desde búfer",
+	"childrenGetFloat" : [ "Búfer", "Posición", "Endianness" ],
 	
-	"nameBytesToBase64"     : "Bytes a base64",
-	"mnemonicBytesToBase64" : "BytesABase64",
-	"childBytesToBase64"    : "Buffer de bytes a ser convertido a base64",
-	"leafBytesToBase64"     : "Bytes a base64"
+	"pathUpdate" : "Data.Manipulación.Actualización",
+	
+	"mnemonicSetInteger" : "FijarEntero",
+	"nameSetInteger1"    : "Fijar entero (",
+	"nameSetInteger2"    : ") en búfer",
+	"childrenSetInteger" : [ "Búfer", "Posición", "Valor", "Signo", "Endianness" ],
+	
+	"mnemonicSetFloat" : "FijarFlotante",
+	"nameSetFloat1"    : "Fijar flotante (",
+	"nameSetFloat2"    : ") en búfer",
+	"childrenSetFloat" : [ "Búfer", "Posición", "Valor", "Endianness" ],
+	
+	"pathToBytes" : "Data.Conversión.A búfer",
+	
+	"nameStringToBytes"     : "Cadena a búfer",
+	"mnemonicStringToBytes" : "CadenaABúfer",
+	"childStringToBytes"    : "Cadena a convertir a búfer",
+	"leafStringToBytes"     : "Cadena a búfer",
+	
+	"nameBase64ToBytes"     : "Base64 a búfer",
+	"mnemonicBase64ToBytes" : "Base64ABúfer",
+	"childBase64ToBytes"    : "Base64 a ser covertido a búfer",
+	"leafBase64ToBytes"     : "Base64 a búfer",
+	
+	"nameHexToBytes"     : "Hexadecimal a búfer",
+	"mnemonicHexToBytes" : "HexABúfer",
+	"childHexToBytes"    : "Hexadecimal a ser convertido a búfer",
+	"leafHexToBytes"     : "Hexadecimal a búfer",
+	
+	"pathFromBytes" : "Data.Conversión.Desde búfer",
+	
+	"nameBytesToString"     : "Búfer a cadena",
+	"mnemonicBytesToString" : "BúferACadena",
+	"childBytesToString"    : "búfer a ser convertido a cadena",
+	"leafBytesToString"     : "Búfer a cadena",
+	
+	"nameBytesToBase64"     : "Búfer a base64",
+	"mnemonicBytesToBase64" : "BúferABase64",
+	"childBytesToBase64"    : "búfer a ser convertido a base64",
+	"leafBytesToBase64"     : "Búfer a base64",
+	
+	"nameBytesToHex"     : "Búfer a hexadecimal",
+	"mnemonicBytesToHex" : "BúferAHex",
+	"childBytesToHex"    : "Búfer a ser convertido a hexadecimal",
+	"leafBytesToHex"     : "Búfer a hexadecimal",
+	
+	"nameBytesToArray"     : "Búfer a arreglo",
+	"mnemonicBytesToArray" : "BúferAArreglo",
+	"childrenBytesToArray" : [ "Búfer a ser convertido a arreglo", "Signo" ],
+	"leafBytesToArray"     : "Búfer a arreglo",
+	
+	"nameArrayToBytes"     : "Arreglo a búfer",
+	"mnemonicArrayToBytes" : "ArregloABúfer",
+	"childrenArrayToBytes" : [ "Arreglo a ser convertido a búfer", "Signo" ],
+	"leafArrayToBytes"     : "Arreglo a búfer",
+	
+	"pathOptions" : "Datos.Opciones",
+	
+	"pathSign" : "Datos.Opciones.Signo",
+	
+	"nameUnsigned" : "No signado",
+	"nameSigned"   : "Signado",
+	
+	"pathEndianness" : "Datos.Opciones.Endianness",
+	
+	"nameLittle-endian" : "Little-endian",
+	"nameBig-endian"    : "Big-endian"
 }
-
