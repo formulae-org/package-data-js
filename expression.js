@@ -22,8 +22,7 @@ export class Data extends Formulae.Package {}
 
 Data.ByteBuffer = class extends Expression.Literal {
 	getTag()  { return "Data.ByteBuffer"; }
-	//getName() { return Data.messages.nameByteBuffer; }
-	getName() { return "Byte buffer"; }
+	getName() { return Data.messages.nameByteBuffer; }
 	
 	set(name, value) {
 		switch (name) {
@@ -48,7 +47,7 @@ Data.ByteBuffer = class extends Expression.Literal {
 		return [ "Value" ];
 	}
 	
-	getSerializationStrings() {
+	async getSerializationStrings() {
 		return [ new Uint8Array(this.arrayBuffer).join(" ")];
 	}
 	

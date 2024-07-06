@@ -1,6 +1,8 @@
 {
 	"pathData" : "Data",
 	
+	"nameByteBuffer" : "Byte buffer",
+	
 	"nameCreateByteBuffer"     : "Create byte buffer",
 	"mnemonicCreateByteBuffer" : "CreateByteBuffer",
 	"childCreateByteBuffer"    : "Number of bytes",
