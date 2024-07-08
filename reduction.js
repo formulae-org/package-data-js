@@ -66,7 +66,7 @@ Data.stringToBytes = async (stringToBytes, session) => {
 			// Surrogate pair:
 			// UTF-16 encodes 0x10000-0x10FFFF by subtracting 0x10000 and
 			// splitting the 20 bits of 0x0-0xFFFFF into two halves
-			charCode = 0x10000 + (((charCode & 0x3ff) << 10) | (str.charCodeAt(ii) & 0x3ff));
+			charCode = 0x10000 + (((charCode & 0x3ff) << 10) | (string.charCodeAt(ii) & 0x3ff));
 			bytes.push(
 				0xf0 |  (charCode >> 18),
 				0x80 | ((charCode >> 12) & 0x3f),

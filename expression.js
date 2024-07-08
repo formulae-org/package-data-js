@@ -48,11 +48,13 @@ Data.ByteBuffer = class extends Expression.Literal {
 	}
 	
 	async getSerializationStrings() {
-		return [ new Uint8Array(this.arrayBuffer).join(" ")];
+		//return [ new Uint8Array(this.arrayBuffer).join(" ")];
+		return [ Utils.bytesToBase64(new Uint8Array(this.arrayBuffer)) ];
 	}
 	
 	setSerializationStrings(strings, promises) {
-		this.arrayBuffer = new Uint8Array(strings[0].split(" ").map(x => Number(x))).buffer;
+		//this.arrayBuffer = new Uint8Array(strings[0].split(" ").map(x => Number(x))).buffer;
+		this.arrayBuffer = Utils.base64ToBytes(strings[0]).buffer;
 	}
 	
 	getLiteral() {
