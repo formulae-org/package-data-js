@@ -38,7 +38,7 @@ The byte buffer expression is a collecion of raw bytes.
 * Exraction of a float-32 (usually known in other languages as *float*) from a given position, and optional endianness
 * Exraction of a float-64 (usually known in other languages as *double float*) from a given position, and optional endianness
 
-#### Update data of a byte buffer ####
+#### Update data in a byte buffer ####
 
 * Update an integer-8 value (a byte) from a given position, and optional signing specification
 * Update an integer-16 value (usually known in other languages as *short int*) from a given position, and optional signing and endianness
