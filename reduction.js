@@ -311,7 +311,8 @@ Data.bytesToArray = async (bytesToArray, session) => {
 		number = unsigned ? dataView.getUint8(i) : dataView.getInt8(i);
 		result.addChild(
 			CanonicalArithmetic.createInternalNumber(
-				CanonicalArithmetic.createInteger(number, session)
+				CanonicalArithmetic.createInteger(number, session),
+				session
 			)
 		);
 	}
@@ -390,32 +391,32 @@ Data.getNumber = async (getNumber, session) => {
 		switch (getNumber.getTag()) {
 			case "Data.GetInteger8":
 				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint8(pos - 1) : dataView.getInt8(pos - 1), session);
-				result = CanonicalArithmetic.createInternalNumber(number);
+				result = CanonicalArithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetInteger16":
 				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number);
+				result = CanonicalArithmetic.createInternalNumber(number), session;
 				break;
 			
 			case "Data.GetInteger32":
 				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint32(pos - 1, little) : dataView.getInt32(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number);
+				result = CanonicalArithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetInteger64":
 				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getBigUint64(pos - 1, little) : dataView.getBigInt64(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number);
+				result = CanonicalArithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetFloat32":
 				number = CanonicalArithmetic.createDecimal(dataView.getFloat32(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number);
+				result = CanonicalArithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetFloat64":
 				number = CanonicalArithmetic.createDecimal(dataView.getFloat64(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number);
+				result = CanonicalArithmetic.createInternalNumber(number, session);
 				break;
 		}
 	}
