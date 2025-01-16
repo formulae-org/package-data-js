@@ -396,7 +396,7 @@ Data.getNumber = async (getNumber, session) => {
 			
 			case "Data.GetInteger16":
 				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number), session;
+				result = CanonicalArithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetInteger32":
