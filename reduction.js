@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 export class Data extends Formulae.Package {}
 
 Data.createByteBuffer = async (createByteBuffer, session) => {
-	let n = CanonicalArithmetic.getNativeInteger(createByteBuffer.children[0]);
+	let n = Arithmetic.getNativeInteger(createByteBuffer.children[0]);
 	if (n === undefined || n < 0) {
 		ReductionManager.setInError(createByteBuffer.children[0], "Invalid number");
 		throw new ReductionError();
@@ -255,7 +255,7 @@ Data.arrayToBytes = async (arrayToBytes, session) => {
 	let dataView = new DataView(arrayBuffer);
 	
 	for (let i = 0; i < n; ++i) {
-		value = CanonicalArithmetic.getNativeInteger(array.children[i]);
+		value = Arithmetic.getNativeInteger(array.children[i]);
 		if (value === undefined) {
 			ReductionManager.setInError(value, "Expression is not an integer number");
 			throw new ReductionError();
@@ -310,8 +310,8 @@ Data.bytesToArray = async (bytesToArray, session) => {
 	for (let i = 0; i < n; ++i) {
 		number = unsigned ? dataView.getUint8(i) : dataView.getInt8(i);
 		result.addChild(
-			CanonicalArithmetic.createInternalNumber(
-				CanonicalArithmetic.createInteger(number, session),
+			Arithmetic.createInternalNumber(
+				Arithmetic.createInteger(number, session),
 				session
 			)
 		);
@@ -330,7 +330,7 @@ Data.getNumber = async (getNumber, session) => {
 	arrayBuffer = arrayBuffer.get("Value");
 	let dataView = new DataView(arrayBuffer);
 	
-	let pos = CanonicalArithmetic.getNativeInteger(getNumber.children[1]);
+	let pos = Arithmetic.getNativeInteger(getNumber.children[1]);
 	if (pos === undefined) {
 		ReductionManager.setInError(getNumber.children[1], "Expression is not an integer number");
 		throw new ReductionError();
@@ -390,33 +390,33 @@ Data.getNumber = async (getNumber, session) => {
 	try {
 		switch (getNumber.getTag()) {
 			case "Data.GetInteger8":
-				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint8(pos - 1) : dataView.getInt8(pos - 1), session);
-				result = CanonicalArithmetic.createInternalNumber(number, session);
+				number = Arithmetic.createInteger(unsigned ? dataView.getUint8(pos - 1) : dataView.getInt8(pos - 1), session);
+				result = Arithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetInteger16":
-				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number, session);
+				number = Arithmetic.createInteger(unsigned ? dataView.getUint16(pos - 1, little) : dataView.getInt16(pos - 1, little), session);
+				result = Arithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetInteger32":
-				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getUint32(pos - 1, little) : dataView.getInt32(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number, session);
+				number = Arithmetic.createInteger(unsigned ? dataView.getUint32(pos - 1, little) : dataView.getInt32(pos - 1, little), session);
+				result = Arithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetInteger64":
-				number = CanonicalArithmetic.createInteger(unsigned ? dataView.getBigUint64(pos - 1, little) : dataView.getBigInt64(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number, session);
+				number = Arithmetic.createInteger(unsigned ? dataView.getBigUint64(pos - 1, little) : dataView.getBigInt64(pos - 1, little), session);
+				result = Arithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetFloat32":
-				number = CanonicalArithmetic.createDecimal(dataView.getFloat32(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number, session);
+				number = Arithmetic.createDecimal(dataView.getFloat32(pos - 1, little), session);
+				result = Arithmetic.createInternalNumber(number, session);
 				break;
 			
 			case "Data.GetFloat64":
-				number = CanonicalArithmetic.createDecimal(dataView.getFloat64(pos - 1, little), session);
-				result = CanonicalArithmetic.createInternalNumber(number, session);
+				number = Arithmetic.createDecimal(dataView.getFloat64(pos - 1, little), session);
+				result = Arithmetic.createInternalNumber(number, session);
 				break;
 		}
 	}
@@ -442,7 +442,7 @@ Data.setNumber = async (setNumber, session) => {
 	let dataView = new DataView(arrayBuffer);
 	
 	// pos
-	let pos = CanonicalArithmetic.getInteger(setNumber.children[1]);
+	let pos = Arithmetic.getInteger(setNumber.children[1]);
 	if (pos === undefined) {
 		ReductionManager.setInError(setNumber.children[1], "Expression is not an integer number");
 		throw new ReductionError();
@@ -454,7 +454,7 @@ Data.setNumber = async (setNumber, session) => {
 	
 	// value
 	
-	//let value = CanonicalArithmetic.expr2CanonicalIntegerOrDecimal(setNumber.children[2]);
+	//let value = Arithmetic.expr2CanonicalIntegerOrDecimal(setNumber.children[2]);
 	//if (value === null) {
 	//	ReductionManager.setInError(setNumber.children[2], "Expression is not a number");
 	//	throw new ReductionError();
@@ -516,50 +516,50 @@ Data.setNumber = async (setNumber, session) => {
 		
 		switch (setNumber.getTag()) {
 			case "Data.SetInteger8":
-				//if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				//if (!(value instanceof Arithmetic.Integer)) return null;
 				//unsigned ? dataView.setUint8(pos - 1, Number(value.integer)) : dataView.setInt8(pos - 1, Number(value));
 				
-				if ((value = CanonicalArithmetic.getNativeNumber(valueExpr)) === undefined) return false;
+				if ((value = Arithmetic.getNativeNumber(valueExpr)) === undefined) return false;
 				unsigned ? dataView.setUint8(pos - 1, value) : dataView.setInt8(pos - 1, value);
 				break;
 			
 			case "Data.SetInteger16":
-				//if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				//if (!(value instanceof Arithmetic.Integer)) return null;
 				//unsigned ? dataView.setUint16(pos - 1, Number(value.integer), little) : dataView.setInt16(pos - 1, Number(value), little);
 				
-				if ((value = CanonicalArithmetic.getNativeNumber(valueExpr)) === undefined) return false;
+				if ((value = Arithmetic.getNativeNumber(valueExpr)) === undefined) return false;
 				unsigned ? dataView.setUint16(pos - 1, value, little) : dataView.setInt16(pos - 1, value, little);
 				break;
 			
 			case "Data.SetInteger32":
-				//if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				//if (!(value instanceof Arithmetic.Integer)) return null;
 				//unsigned ? dataView.setUint32(pos - 1, Number(value.integer), little) : dataView.setInt32(pos - 1, Number(value), little);
 				
-				if ((value = CanonicalArithmetic.getNativeNumber(valueExpr)) === undefined) return false;
+				if ((value = Arithmetic.getNativeNumber(valueExpr)) === undefined) return false;
 				unsigned ? dataView.setUint32(pos - 1, value, little) : dataView.setInt32(pos - 1, value, little);
 				break;
 			
 			case "Data.SetInteger64":
-				//if (!(value instanceof CanonicalArithmetic.Integer)) return null;
+				//if (!(value instanceof Arithmetic.Integer)) return null;
 				//unsigned ? dataView.setBigUint64(pos - 1, value.integer, little) : dataView.setBigInt64(pos - 1, Number(value), little);
 				
-				if ((value = CanonicalArithmetic.getNativeBigInteger(valueExpr)) === undefined) return false;
+				if ((value = Arithmetic.getNativeBigInteger(valueExpr)) === undefined) return false;
 				unsigned ? dataView.setBigUint64(pos - 1, value, little) : dataView.setBigInt64(pos - 1, value, little);
 				break;
 			
 			case "Data.SetFloat32":
-				//if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
+				//if (!(value instanceof Arithmetic.Decimal)) return null;
 				//dataView.setFloat32(pos - 1, value.decimal.toNumber(), little);
 				
-				if ((value = CanonicalArithmetic.getNativeNumber(valueExpr)) === undefined) return false;
+				if ((value = Arithmetic.getNativeNumber(valueExpr)) === undefined) return false;
 				dataView.setFloat32(pos - 1, value, little);
 				break;
 			
 			case "Data.SetFloat64":
-				//if (!(value instanceof CanonicalArithmetic.Decimal)) return null;
+				//if (!(value instanceof Arithmetic.Decimal)) return null;
 				//dataView.setFloat64(pos - 1, value.decimal.toNumber(), little);
 				
-				if ((value = CanonicalArithmetic.getNativeNumber(valueExpr)) === undefined) return false;
+				if ((value = Arithmetic.getNativeNumber(valueExpr)) === undefined) return false;
 				dataView.setFloat64(pos - 1, value, little);
 				break;
 		}
