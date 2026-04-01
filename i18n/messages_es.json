@@ -5,8 +5,8 @@
 	
 	"nameCreateByteBuffer"     : "Crear búfer",
 	"mnemonicCreateByteBuffer" : "CrearBúfer",
-	"childCreateByteBuffer"    : "Númbero de bytes",
-	"leafCreateByteBuffer"     : "Crear búffer",
+	"childCreateByteBuffer"    : "Número de bytes",
+	"leafCreateByteBuffer"     : "Crear búfer",
 	
 	"pathExtraction" : "Datos.Manipulación.Extracción",
 	
@@ -41,7 +41,7 @@
 	
 	"nameBase64ToBytes"     : "Base64 a búfer",
 	"mnemonicBase64ToBytes" : "Base64ABúfer",
-	"childBase64ToBytes"    : "Base64 a ser covertido a búfer",
+	"childBase64ToBytes"    : "Base64 a ser convertido a búfer",
 	"leafBase64ToBytes"     : "Base64 a búfer",
 	
 	"nameHexToBytes"     : "Hexadecimal a búfer",
