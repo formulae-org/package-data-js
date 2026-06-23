@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-'use strict';
+"use strict";
 
 export class Data extends Formulae.Package {}
 
@@ -100,7 +100,7 @@ Data.bytesToString = async (bytesToString, session) => {
 	let charCache = new Array(128);  // Preallocate the cache for the common single byte chars
 	let charFromCodePt = String.fromCodePoint || String.fromCharCode;
 	let result = [];
-		
+	
 	let codePoint, byte;
 	let array = new Uint8Array(arrayBuffer);
 	let length = array.length;
@@ -133,7 +133,7 @@ Data.bytesToString = async (bytesToString, session) => {
 	// End thanks
 	
 	let string = result.join('');
-		
+	
 	let stringExpr = Formulae.createExpression("String.String");
 	stringExpr.set("Value", string);
 	bytesToString.replaceBy(stringExpr);
